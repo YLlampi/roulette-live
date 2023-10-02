@@ -11,10 +11,20 @@ const socket = new WebSocket(`ws://${window.location.host}/ws/${dashboardSlug}/`
 console.log(socket);
 
 socket.onmessage = function (e) {
-    const {sender, message} = JSON.parse(e.data);
-    dataBox.innerHTML += `<p>${sender}: ${message}</p>`;
-
-    updateChart();
+    socket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+    
+        if (data.random_number) {
+            console.log('Random number:', data.random_number);
+            // Aquí puedes añadir código para hacer algo con el número aleatorio
+            document.getElementById('number').innerHTML = data.random_number;
+        } else {
+            const {sender, message} = data;
+            dataBox.innerHTML += `<p>${sender}: ${message}</p>`;
+            updateChart();
+        }
+    };
+    
 
 };
 
