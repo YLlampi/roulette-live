@@ -7,7 +7,8 @@ import random
 import asyncio
 
 class DashboardConsumer(AsyncWebsocketConsumer):
-    connected_users = 0  # Variable de clase para contar los usuarios conectados
+    group_tasks = {}  # Diccionario para almacenar las tareas por grupo
+    group_users = {}  # Diccionario para contar los usuarios por grupo
 
     async def connect(self):
         dashboard_slug = self.scope['url_route']['kwargs']['dashboard_slug']
@@ -16,17 +17,15 @@ class DashboardConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
-        # Inicia la tarea que envía números aleatorios cada 2 segundos
-        # self.send_random_number_task = asyncio.create_task(self.send_random_number_periodically())
+        # Incrementa el contador de usuarios para este grupo
+        DashboardConsumer.group_users[self.room_group_name] = DashboardConsumer.group_users.get(self.room_group_name, 0) + 1
 
-        DashboardConsumer.connected_users += 1  # Incrementa el contador cuando un usuario se conecta
-
-        # Solo inicia la tarea si es el primer usuario conectado
-        if DashboardConsumer.connected_users == 1:
-            self.send_random_number_task = asyncio.create_task(self.send_random_number_periodically())
+        # Verifica si el grupo ya tiene una tarea asociada
+        if self.room_group_name not in DashboardConsumer.group_tasks:
+            # Inicia una nueva tarea para el grupo y la almacena en el diccionario
+            task = asyncio.create_task(self.send_random_number_periodically())
+            DashboardConsumer.group_tasks[self.room_group_name] = task
             
-
-
 
     async def disconnect(self, code):
         print(f'Connection closed with code: {code}')
@@ -35,14 +34,15 @@ class DashboardConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
-        # Cancela la tarea cuando el cliente se desconecta
-        # self.send_random_number_task.cancel()
+        # Decrementa el contador de usuarios para este grupo
+        DashboardConsumer.group_users[self.room_group_name] -= 1
 
-        DashboardConsumer.connected_users -= 1  # Decrementa el contador cuando un usuario se desconecta
-
-        # Cancela la tarea cuando el último usuario se desconecta
-        if DashboardConsumer.connected_users == 0 and hasattr(self, 'send_random_number_task'):
-            self.send_random_number_task.cancel()
+        # Verifica si este es el último usuario en el grupo
+        if DashboardConsumer.group_users[self.room_group_name] == 0:
+            # Cancela la tarea asociada con el grupo
+            task = DashboardConsumer.group_tasks.pop(self.room_group_name, None)
+            if task:
+                task.cancel()
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -59,7 +59,6 @@ class DashboardConsumer(AsyncWebsocketConsumer):
             'type': 'statistics_message',
             'message': message,
             'sender': sender,
-
         })
 
     async def statistics_message(self, event):
