@@ -26,7 +26,11 @@ def main(request):
 
 def dashboard(request, slug):
     context = {}
-    obj = get_object_or_404(Statistic, slug=slug)
+    try:
+        obj = get_object_or_404(Statistic, slug=slug)
+    except Exception:
+        return redirect('stats:main')
+    
     context['name'] = obj.name
     context['slug'] = obj.slug
     context['data'] = obj.data

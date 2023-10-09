@@ -6,7 +6,7 @@
 
 
 {% block content %}
-
+    {% comment %}
     <form method="POST">
         {% csrf_token %}
         <div class="form-group">
@@ -14,8 +14,10 @@
             <button type="submit" class="btn btn-primary mt-3">+ add</button>
         </div>
     </form>
+    {% endcomment %}
 
-
+    <h1>Roulette Tables</h1>
+    <hr>
     {% if qs %}
         <ul>
             {% for el in qs %}
