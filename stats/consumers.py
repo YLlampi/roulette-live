@@ -6,6 +6,11 @@ import json
 import random
 import asyncio
 
+TIMES = {
+    'roulette_first': 43.77,
+}
+
+
 class DashboardConsumer(AsyncWebsocketConsumer):
     group_tasks = {}  # Diccionario para almacenar las tareas por grupo
     group_users = {}  # Diccionario para contar los usuarios por grupo
@@ -18,14 +23,14 @@ class DashboardConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
         # Incrementa el contador de usuarios para este grupo
-        DashboardConsumer.group_users[self.room_group_name] = DashboardConsumer.group_users.get(self.room_group_name, 0) + 1
+        DashboardConsumer.group_users[self.room_group_name] = DashboardConsumer.group_users.get(self.room_group_name,
+                                                                                                0) + 1
 
         # Verifica si el grupo ya tiene una tarea asociada
         if self.room_group_name not in DashboardConsumer.group_tasks:
             # Inicia una nueva tarea para el grupo y la almacena en el diccionario
-            task = asyncio.create_task(self.send_random_number_periodically())
+            task = asyncio.create_task(self.send_information_periodically())
             DashboardConsumer.group_tasks[self.room_group_name] = task
-            
 
     async def disconnect(self, code):
         print(f'Connection closed with code: {code}')
@@ -48,9 +53,6 @@ class DashboardConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         sender = text_data_json['sender']
-
-        print(message, )
-        print(sender)
 
         dashboard_slug = self.dashboard_slug
         await self.save_data_item(sender, message, dashboard_slug)
@@ -78,18 +80,22 @@ class DashboardConsumer(AsyncWebsocketConsumer):
     async def save_data_item(self, sender, message, slug):
         await self.create_data_item(sender, message, slug)
 
-    async def send_random_number_periodically(self):
+    async def send_information_periodically(self):
         while True:
-            random_number = random.randint(1, 100)
+            number = random.randint(1, 10)
+            information = 'red'
+            if number <= 4:
+                information = 'black'
+
             await self.channel_layer.group_send(self.room_group_name, {
-                'type': 'send_random_number',
-                'random_number': random_number
+                'type': 'send_information',
+                'information': information
             })
-            await asyncio.sleep(2)  # espera 2 segundos antes de enviar el próximo número
+            await asyncio.sleep(TIMES['roulette_first'])  # espera 2 segundos antes de enviar el próximo número
 
     # Esto es un manejador personalizado que envía el número aleatorio a todos los consumidores en el grupo
-    async def send_random_number(self, event):
-        random_number = event['random_number']
+    async def send_information(self, event):
+        information = event['information']
         await self.send(text_data=json.dumps({
-            'random_number': random_number
+            'information': information
         }))

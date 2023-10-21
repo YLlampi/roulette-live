@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block scripts %}
+
+{% endblock scripts %}
+
+
+{% block content %}
+
+    {% include 'stats/include/navbar.html' %}
+
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-6">
+                <h3>Subscription - PRO</h3>
+                <p>Access all tables</p>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="form-group mb-2">
+                        <label>Membership type</label>
+                        <select class="form-control" name="membership">
+                            <optio>Choose</optio>
+                            <option value="MONTHLY">DAILY - 2.50 USD</option>
+                            <option value="YEARLY">WEEKLY - 15.00 USD</option>
+                        </select>
+                    </div>
+
+{#                    <button class="btn btn-primary">Become Pro</button>#}
+                </form>
+                <hr>
+                <div id="paypal-button-container-P-1AY76390KG1964935MUSZ6SA"></div>
+                <script src="https://www.paypal.com/sdk/js?client-id=AQQly2tFYdxifNEMbZgwUXSbnXLBSczThFwbTRzwFuwEstvoTwpSOQcWV6p85rFe2O60r8g1M3UD6iiE&vault=true&intent=subscription"
+                        data-sdk-integration-source="button-factory"></script>
+                <script>
+                    paypal.Buttons({
+                        style: {
+                            shape: 'rect',
+                            color: 'gold',
+                            layout: 'vertical',
+                            label: 'subscribe'
+                        },
+                        createSubscription: function (data, actions) {
+                            return actions.subscription.create({
+                                /* Creates the subscription */
+                                plan_id: 'P-1AY76390KG1964935MUSZ6SA'
+                            });
+                        },
+                        onApprove: function (data, actions) {
+                            alert(data.subscriptionID); // You can add optional success message for the subscriber here
+                        }
+                    }).render('#paypal-button-container-P-1AY76390KG1964935MUSZ6SA'); // Renders the PayPal button
+                </script>
+            </div>
+
+            <div class="col-lg-6">
+                <img src="https://www.casino.org/blog/wp-content/uploads/shutterstock_1560971411-875x583.jpg"
+                     class="img-responsive" style="max-width: 100%">
+            </div>
+
+        </div>
+    </div>
+
+
+{% endblock content %}

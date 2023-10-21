@@ -1,4 +1,3 @@
-
 const dashboardSlug = document.getElementById('dashboard-slug').textContent.trim();
 /*
 const user = document.getElementById('user').textContent.trim();
@@ -8,26 +7,32 @@ const dataInput = document.getElementById('data-input');
 const dataBox = document.getElementById('data-box');
 
 const socket = new WebSocket(`ws://${window.location.host}/ws/${dashboardSlug}/`);
+
 // console.log(socket);
 
+function updateInformation(value) {
+    let infoElement = document.getElementById('information');
+    infoElement.classList.add('fadeOutIn');
+
+    setTimeout(() => {
+        if (value === 'red') {
+            infoElement.innerHTML = '<span class="badge text-bg-danger">' + value.toUpperCase() + '</span>';
+        } else if (value === 'black') {
+            infoElement.innerHTML = '<span class="badge text-bg-dark">' + value.toUpperCase() + '</span>';
+        } else {
+            infoElement.innerHTML = value;
+        }
+        infoElement.classList.remove('fadeOutIn');
+    }, 500);  // La mitad de la duración de la animación
+}
+
 socket.onmessage = function (e) {
-    socket.onmessage = function (e) {
-        const data = JSON.parse(e.data);
-    
-        if (data.random_number) {
-            // console.log('Random number:', data.random_number);
-            // Aquí puedes añadir código para hacer algo con el número aleatorio
-            document.getElementById('number').innerHTML = data.random_number;
-        }
-        /* 
-        else {
-            const {sender, message} = data;
-            dataBox.innerHTML += `<p>${sender}: ${message}</p>`;
-            updateChart();
-        }
-        */
-    };
+    const data = JSON.parse(e.data);
+    if (data.information) {
+        updateInformation(data.information);
+    }
 };
+
 
 /*
 submitBtn.addEventListener('click', () => {
