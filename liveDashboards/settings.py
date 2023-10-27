@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure--lf#62#r+4p0@zmcvdde8ms6gd)9fhkrxdbrug*135nz+%c3*_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.4']
+ALLOWED_HOSTS = ['192.168.0.4', '127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'stats.apps.StatsConfig',
+
+    'paypal.standard.ipn'
 ]
 
 CHANNEL_LAYERS = {
@@ -136,3 +138,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'
+
+PAYPAL_RECEIVER_EMAIL = 'sb-vztsh27896174@business.example.com'
+PAYPAL_TEST = True
+
+PAYPAL_CLIENT_ID = 'AfAvtO4YvsANEsOUWDV83TzkjMSEN700XekVyvpk5WXDvmR63Yzo4HmZC-HK1upOTzSeUkLdR63fSUfc'
+PAYPAL_SECRET = 'EDt4s9EtgpiL7suy_i3SvAqKENAem30xrcv2AZlvN8waNb424-h8SvLfYPjtWnoLKZbCx1VOR2ue8hpw'
+
+# PAYPAL_BUY_BUTTON_IMAGE = ''

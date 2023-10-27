@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block scripts %}
+
+{% endblock scripts %}
+
+
+{% block content %}
+
+    {% include 'stats/include/navbar.html' %}
+
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-6">
+                <h3>Check-Out for product: {{ product.name }}</h3>
+                <div class="product-container">
+                    <div class="products">
+                        <img class="img" src="{{ product.image }}" alt="">
+                        <p>Frequency: {{ product.name }}</p>
+                        <p>Price: $ {{ product.get_price }}</p>
+                        <p>Description: {{ product.description }}</p>
+
+                        <div class="">{{ paypal.render }}</div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="col-lg-6">
+                <img src="https://www.casino.org/blog/wp-content/uploads/shutterstock_1560971411-875x583.jpg"
+                     class="img-responsive" style="max-width: 100%">
+            </div>
+
+        </div>
+    </div>
+
+
+{% endblock content %}

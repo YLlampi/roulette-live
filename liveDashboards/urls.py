@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('', include('stats.urls', namespace='stats')),
+    path('', include('paypal.standard.ipn.urls')),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

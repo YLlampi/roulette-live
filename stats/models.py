@@ -52,3 +52,25 @@ class Profile(models.Model):
 
     def __str__(self):
         return f'{self.user.username}'
+
+
+class Product(models.Model):
+    DAILY = 'daily'
+    WEEKLY = 'weekly'
+    MONTHLY = 'monthly'
+
+    FREQUENCY_CHOICES = (
+        (DAILY, 'Daily'),
+        (WEEKLY, 'Weekly'),
+        (MONTHLY, 'Monthly')
+    )
+    name = models.CharField(max_length=10, choices=FREQUENCY_CHOICES, default=DAILY)
+    description = models.CharField(max_length=100)
+    price = models.IntegerField()
+    image = models.URLField(blank=True, null=True)
+
+    def get_price(self):
+        return f'{self.price/100:.2f}'
+
+    def __str__(self):
+        return f'{self.name}: {self.price}'
