@@ -38,7 +38,7 @@ def get_secret(secret_name, secrets=secret):
 SECRET_KEY = get_secret('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['192.168.0.4', '127.0.0.1', 'localhost']
 
@@ -166,11 +166,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'
 
-PAYPAL_RECEIVER_EMAIL = 'sb-vztsh27896174@business.example.com'
-PAYPAL_TEST = True
+# PAYPAL_RECEIVER_EMAIL = 'sb-vztsh27896174@business.example.com'
+# PAYPAL_TEST = True
 
-PAYPAL_CLIENT_ID = 'AfAvtO4YvsANEsOUWDV83TzkjMSEN700XekVyvpk5WXDvmR63Yzo4HmZC-HK1upOTzSeUkLdR63fSUfc'
-PAYPAL_SECRET = 'EDt4s9EtgpiL7suy_i3SvAqKENAem30xrcv2AZlvN8waNb424-h8SvLfYPjtWnoLKZbCx1VOR2ue8hpw'
+PAYPAL_CLIENT_ID = get_secret('PAYPAL_CLIENT_ID')
+PAYPAL_SECRET = get_secret('PAYPAL_SECRET')
 
 # PAYPAL_BUY_BUTTON_IMAGE = ''
 

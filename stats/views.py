@@ -99,8 +99,15 @@ def become_pro(request):
     return render(request, 'stats/become_pro.html', context)
 
 
+def get_mode_paypal():
+    if settings.DEBUG:
+        return f"sandbox"  # Change to "live" for production
+    else:
+        return f"live"
+
+
 paypalrestsdk.configure({
-    "mode": "sandbox",  # Change to "live" for production
+    "mode": get_mode_paypal(),
     "client_id": settings.PAYPAL_CLIENT_ID,
     "client_secret": settings.PAYPAL_SECRET,
 })
@@ -197,7 +204,7 @@ def payment_checkout(request):
 #     return render(request, 'stats/payment_success.html', context)
 
 
-def payment_failed(request, product_id):
+def payment_failed(request):
     context = {}
 
     return render(request, 'stats/payment_failed.html', context)
@@ -212,3 +219,7 @@ def chart_data(request, slug):
         'chartData': chart_data,
         'chartLabels': chart_labels
     })
+
+
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)
