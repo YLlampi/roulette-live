@@ -6,4 +6,4 @@ class StatsConfig(AppConfig):
     name = 'stats'
 
     def ready(self):
-        import stats.signals  # replace 'your_app' with the name of your app
+        import stats.signals

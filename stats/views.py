@@ -6,9 +6,11 @@ from django.db.models import Sum
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.conf import settings
+from django.utils import timezone
+
 import uuid
 
-from .models import Statistic, DataItem, Product
+from .models import Statistic, DataItem, Product, Profile
 from .forms import LoginForm, RegisterForm
 
 from paypal.standard.forms import PayPalPaymentsForm
@@ -130,6 +132,7 @@ def create_payment(request, product_id):
 
     if payment.create():
         return redirect(payment.links[1].href)  # Redirect to PayPal for payment
+
     else:
         return render(request, 'stats/payment_failed.html')
 
@@ -169,23 +172,18 @@ def execute_payment(request, product_id):
     payment = paypalrestsdk.Payment.find(payment_id)
 
     if payment.execute({"payer_id": payer_id}):
-        # Logica de Suscripcion
-        # Agregar dias
-
-
-
         product = Product.objects.get(id=product_id)
         user = User.objects.get(id=request.user.id)
-        # print("****************************")
-        # print(product.get_price())
-        # print(product.name)
-        # print(user.username)
-        # print(user.profile.is_pro)
-        # user.profile.is_pro = True
-        # print(user.profile.is_pro)
-        # user.save()
-        # print("****************************")
-        return render(request, 'stats/payment_success.html')
+
+        user.profile.is_pro = True
+        user.profile.activation_date = timezone.now()
+
+        product_duration_in_seconds = product.get_frequency_in_hours() * 3600
+        user.profile.deactivation_date = user.profile.activation_date + timezone.timedelta(
+            seconds=product_duration_in_seconds)
+        user.save()
+        # return render(request, 'stats/tables.html')
+        return redirect('stats:main')
     else:
         return render(request, 'stats/payment_failed.html')
 

@@ -10,7 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
+import json
+
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -18,8 +22,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
+with open('secret.json') as f:
+    secret = json.loads(f.read())
+
+
+def get_secret(secret_name, secrets=secret):
+    try:
+        return secrets[secret_name]
+    except Exception as e:
+        message = f'La variable {secret_name} no existe [{e}]'
+        raise ImproperlyConfigured(message)
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--lf#62#r+4p0@zmcvdde8ms6gd)9fhkrxdbrug*135nz+%c3*_'
+SECRET_KEY = get_secret('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -30,18 +46,23 @@ ALLOWED_HOSTS = ['192.168.0.4', '127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'channels',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+]
 
+LOCAL_APPS = [
     'stats.apps.StatsConfig',
+]
 
+THIRD_PARTY_APPS = [
     'paypal.standard.ipn'
 ]
+
+INSTALLED_APPS += LOCAL_APPS + THIRD_PARTY_APPS
 
 CHANNEL_LAYERS = {
     'default': {
@@ -60,6 +81,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'stats.middleware.AutomaticDeactivationMiddleware',
+
 ]
 
 ROOT_URLCONF = 'liveDashboards.urls'
@@ -89,8 +113,12 @@ ASGI_APPLICATION = 'liveDashboards.asgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': get_secret('DB_NAME'),
+        'USER': get_secret('USER'),
+        'PASSWORD': get_secret('PASSWORD'),
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
@@ -117,7 +145,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Lima'
 
 USE_I18N = True
 
@@ -126,12 +154,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# STATICFILES_DIR = {
-#   os.path.join(BASE_DIR, 'public/static')
-# }
-# MEDIA_URL = '/media/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -146,3 +173,10 @@ PAYPAL_CLIENT_ID = 'AfAvtO4YvsANEsOUWDV83TzkjMSEN700XekVyvpk5WXDvmR63Yzo4HmZC-HK
 PAYPAL_SECRET = 'EDt4s9EtgpiL7suy_i3SvAqKENAem30xrcv2AZlvN8waNb424-h8SvLfYPjtWnoLKZbCx1VOR2ue8hpw'
 
 # PAYPAL_BUY_BUTTON_IMAGE = ''
+
+try:
+    # Importar la configuración de desarrollo.
+    from .settings_dev import *
+except ModuleNotFoundError:
+    # Ignorar el error si el archivo no se encuentra.
+    pass

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block scripts %}
+
+{% endblock scripts %}
+
+
+{% block content %}
+    {% comment %}
+<form method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+        <input type="text" class="form-control" name="new-statistic">
+        <button type="submit" class="btn btn-primary mt-3">+ add</button>
+    </div>
+</form>
+{% endcomment %}
+
+    {% include 'stats/include/navbar.html' %}
+
+    <br>
+    <h1>Roulette Tables</h1>
+    <hr>
+    {% if qs %}
+        <div class="table-responsive">
+
+            <table class="table table-striped">
+                <thead class="table-danger">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Table</th>
+                    <th scope="col">Provider</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Operative</th>
+                    <th scope="col">Action</th>
+                </tr>
+                </thead>
+                <tbody class="">
+                {% for el in qs %}
+                    <tr class="">
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ el.name }}</td>
+                        <td>{{ el.provider.name }}</td>
+                        {% if el.is_premium %}
+                            <td><span href="{% url 'stats:become_pro' %}"
+                                      class="badge text-bg-danger">PRO REQUIRED</span>
+                            </td>
+                        {% else %}
+                            <td><span href="{{ el.get_absolute_url }}" class="badge text-bg-success">FREE</span></td>
+                        {% endif %}
+
+                        {% if el.is_operative %}
+                            <td><span class="badge text-bg-success">YES</span>
+                            </td>
+                        {% else %}
+                            <td><span class="badge text-bg-danger">NO</span></td>
+                        {% endif %}
+
+                        {#                    <td>{{ el.is_operative }}</td>#}
+
+                        {% if request.user.profile.is_pro or not el.is_premium %}
+                            <td><a href="{{ el.get_absolute_url }}" class="btn btn-success btn-sm">Go Table</a></td>
+                        {% else %}
+                            <td><a href="{% url 'stats:become_pro' %}" class="btn btn-warning btn-sm">Get
+                                Suscription</a>
+                            </td>
+                        {% endif %}
+
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    {#    {% if qs %}#}
+    {#        <ul>#}
+    {#            {% for el in qs %}#}
+    {#                <li><a href="{{ el.get_absolute_url }}">{{ el.name }}</a></li>#}
+    {#            {% endfor %}#}
+    {#        </ul>#}
+    {#    {% endif %}#}
+{% endblock content %}
